@@ -1,0 +1,508 @@
+---
+title: "summary stats for Y3 (second most important LC14b input)"
+output:
+  html_document:
+    df_print: paged
+  code_folding: hide
+  pdf_document: default
+---
+
+```{r, echo=F, warning=F,message=F}
+
+library(tidyverse)
+library(googlesheets4)
+library(tm)
+library(googledrive)
+library(DT)
+library(ggplot2)
+library(plotly)
+
+# drive_auth(email = "name@email.com")
+options(dplyr.print_max = 1e9)
+```
+
+```{r,echo=F, warning=F,message=F}
+
+#Y axis of the graphs ( "Maxsyn" ; "Minsyn" ; "averagesyn"  ; "syn" ; "n" ;"percentage_ided"  ; "percentage_ided_syn" ; "percentage_toal"     "percentage_toal_syn")
+
+ y <- "syn"
+
+# which tables
+
+#1 table = c("1PrjDAaV6p7_kYH15JccqV3fAx-h8bFe2sB6hbX3KKAY")
+#2 table = c("1MS8bIhUm01igObPvvouMIQi1ddBOORoZmnobNiwPKQg")
+#3 table = c("10HGnmM-I-Pgu-LQP6JIxMGWshIjEea3wUsaXKJ309q8")
+#4 table = c("117IbYX--ovgdp4_QOuadSAAcElgZk-ke10kjbJZZDPQ")
+#5 table = c("1_8yLdgB7UKyda_5jGyjQedyRLvsqlEDk9DOdmtuQXQU")
+#6 table = c("1AjTbZqnelbo44j9by_Zh3R7d3_d1WVfKiZxHL3kT2uI")
+#7 table = c("14Zdad0F7RrxT-sm2G2VuHFxwocWKlyUOYT_wql8ARTk")
+#8 table = c("13rWE-vYCLC8EeEcY_MbpglyFJArVQZMRaIkdxod1bp0")
+#9 table = c("1oq2okrYabE1968BI9Ne1Y6aaoXYuxMIakHuod-vQz6k")
+#10 table = c("1R1F8EtqMZY2AHP-JkXKii6sAv8COgANU1zWiwRefyME")
+#11 table = c("126DFNZJvnmDoGV8ImD9GnnUepKVf1TK_D4iUyg8FXj0")
+#12 table = c("10EbHdcLBWyd6iG7nFPUXuA9jd6xrXu-84vbf3fiby5U")
+
+#1 2 5 6 9 10 table = c("1PrjDAaV6p7_kYH15JccqV3fAx-h8bFe2sB6hbX3KKAY","1MS8bIhUm01igObPvvouMIQi1ddBOORoZmnobNiwPKQg", "1_8yLdgB7UKyda_5jGyjQedyRLvsqlEDk9DOdmtuQXQU", "1AjTbZqnelbo44j9by_Zh3R7d3_d1WVfKiZxHL3kT2uI", "1oq2okrYabE1968BI9Ne1Y6aaoXYuxMIakHuod-vQz6k", "1R1F8EtqMZY2AHP-JkXKii6sAv8COgANU1zWiwRefyME")
+
+
+
+## 1ST MOST IMPORTANT NEURONS
+
+
+### LC14a input <- LC9
+
+##table = c("14FS2ayAzV5gNq3sDQ6IuYfU_VrA3OltY-moant0EX-8", ##"1C2sc5_E4sTeyVoHIq11SHTJM1gdpvDhW6nzwZPRJyyY",
+##"16EJN1c4EgW25OPwkBg9pTDP9WO3ddt8_18W1Z3zRHdk")
+
+
+
+### Other LC9
+
+##table = c("1O1q48IxN90ZBENaFefw-deEhJasS7XDdSPHkq_ZG_x4", ##"1BEETGXKQLQXuEXivt6sWiRwEQGbcPue1CBQm3RgX95o")
+
+#### ? "189HNY8Ds7KAO5iTmoXr9eByHi96G7GZA2f9kzMOZS68"
+
+
+
+### LC14a input <- LC9 input <- PVLP_to_PLP
+
+##table = c( "1sGpl8guN04lbnvilApo4DwZnE-scaBJgKbPROtvZkUc",
+##"1Qpw3hsXOnZ9pCuYOb-0jGBQyLSS_HE47xDN6Ueduy9I",
+##"1kWWzFpASwVGCHW7gmRHJdk_QlTlIVje0GTqXpUXbNxM")
+
+
+
+### LC14a output -> Lobula to medulla
+
+##table = c("1nhCJEE_Uw6FmANEw4dEVLzj7dVX4p3-FIyxi2QwXOn0",
+##"1uUf8gpLPi0xR3uZaQQF3ODMUwvn5zKNcKbgh31slTus",
+##"1w2QmqlxvEo5RdDe7YeJOEFyd_CYDTXcSOMwTML1DH9Q")
+
+
+
+### LC14b input <- T2a
+
+##table = c( "14SDD_5dUhgeyKU-i-xysdONtFdUeIOB1r93BTlWMe4U",
+##"1O0iAsJ1r-3akZ3TA9nWIMJ6cub2ckXvq5A7Urh9-DFk",
+##"1hlRSA5KpkbMeRvQb_rF-RTEVwWzb1uEqJTLtzA7L4wg")
+
+
+
+### LC14b input <- T2a input <- Mi1
+
+##table = c( "1Eh8Wrkxk-rI_8HA7_TsUnFw6sHVFgcU9oNaR1TYMFP4",
+##"18-egDavLW-pQ6Cq6E2_Y_u7W0z1lsRCfvqIFPGsY2VA",
+##"1dWmII5aH69R8140KBd3XYDCcvZnKTxRarHC5JprvNSs")
+
+
+
+### LC14b output -> Li2
+
+##table = c( "1wu20XyoN0DCTVE_efCh1r5lK7fjikJzmr1YI6OA4SL4",
+##"1ilnwXpwF2e_kwW88BwbVrRgzZAxUof4oqNoADNHg0Og",
+##"11yIkts2DqMR6i54d64t4T4K-lBuaIdtla6Yy54AaQs8")
+
+
+
+### LC14b output -> Li2 output -> LC17
+
+##table = c( "1aRy0Zvfhc4OHXm4Ep5d8SNPpsYL-k5v97TVZkdyNvmo",
+##"1RpMerU9QQ9cJL8X8z6hrsTCyFPpEqmkhqYfP1w0v1Ek",
+##"1QAav0adK0aMkHKRrtqJ3TT9wVQbenCnArWyL_PjYlng")
+
+
+
+
+## 2ND MOST IMPORTANT NEURONS
+
+
+
+### LC14a input <- Li1
+
+##table = c( "1GyHqc0AfipANkw0NJboHG40pJXbNPxQ15N-9_1GbTME",
+##"132elZveGuRGYeYN9cTVNkGfzwKE_Km24H9ns0ya1oBY",
+##"1uyJIrAeXUz6dd2YImW0NLq7aTO4ovlzfxYyg2GW0HaQ")
+
+
+
+### LC14a output -> Li2
+
+##table = c("1wVbLJfyxiJSX9DRfB9-g18o6qDzYS8vqNslR28_3i7g",
+##"1tMxIvkkZ8t-_r9zIDTi9xsddM1jPc6eKkK-4RFHPggw",
+##"19wfcWnT1B7A__AK2kcP-zokCXvZHdfTqyoVyqtDk-Pc")
+
+
+
+
+### LC14b input <- Y3
+
+table = c("1PUHgwV1aNILWQOyklojstNaVDsqAF-O582sgjcKXefs",
+"1PUHgwV1aNILWQOyklojstNaVDsqAF-O582sgjcKXefs",
+"1-QA0HYZaTIh9o2ioILpSfi3-JUG6V8P-cOGXAO4JHfc")
+
+
+
+
+### LC14b output -> Dm3
+
+##table = c("1QshdZKac3ZW9Wntx4fFpnD6Vn2k9xFeW-Oihltfw7cM",
+##"1pUtLSRczu0_0DCECngApn9piXEK7z4F3jvxQBSGb2OY",
+##"1udTpatxpnvSz_oihhNJESrdp01O6K7Fcna2hXleCOhk")
+
+
+
+
+### T2a???
+##"1AJYJZm7yR0yfm7uz88ptYMeeWkm4yezKwN_dHqNtBRk")
+
+
+
+
+
+## 3RD MOST IMPORTANT NEURONS
+
+
+
+
+### LC14a input -> Lobula to medulla
+
+##table = c("1gn7b0-KtV25s3GY8xQ8FoBGImKsrbFm-EfNwI059aDw",
+##"1kqMB9v1BeWh4yV6Z-ao1rRwDOsuGxa9V9gRQQoqoXhk",
+##"1rDVxYIT1AUeZd3NJSLYKjwJd4d5OCnijqzy52Jt0P_o")
+
+
+
+
+### LC14a output -> Li1
+
+##table = c("1cVUjBlHPwCAQ6UCHIMHOQxBYxq38W2L9rLgM_D8iRm0",
+##"11LvbADEHe8H-XF-3Hm7LDc-kgnbEpcZHYXgqD8jLC3E",
+##"1ZkRRcZXHsqaBbPWr9fjhJJYIBgMlGnlJG2GrLL_-HmI")
+
+
+
+
+### LC14b input -> TmY5
+
+##table = c("1V2FtkHcraOAvoru2oarJjL3vQoBHgSE7xueYl6sOe9E",
+##"13z6BnOv_l9aBavvJK3hda50Vx4SOHLM4zjMNOs-gNW0",
+##"1A8m-pCT_wiZ6_diRdcmByp-fwbXtoxAa7jlMgXofx2Q")
+
+
+
+
+### LC14b output -> Li1
+
+##table = c("1tDcU2ytkOWH55d7qdBznG5-bTFV1A1vQNinMHjUJndU",
+##"1an1aQKjHYZHP17TOidaByxlqbneet7Cy8COx6C4XxKI",
+##"1R3V52LMywa1up9XdKyE3yp2ah-7AmFxjWo-esXnFvd8")
+
+
+#### ATTENTION: LC14a neuron itself! 
+
+
+##LC14a Set middle
+
+##table = c("1PrjDAaV6p7_kYH15JccqV3fAx-h8bFe2sB6hbX3KKAY",
+##"1MS8bIhUm01igObPvvouMIQi1ddBOORoZmnobNiwPKQg")
+
+
+## ALL LC14as (Set Middle, Dorsal, Ventral)
+
+##table = c("1PrjDAaV6p7_kYH15JccqV3fAx-h8bFe2sB6hbX3KKAY",
+##"1MS8bIhUm01igObPvvouMIQi1ddBOORoZmnobNiwPKQg",
+##"1_8yLdgB7UKyda_5jGyjQedyRLvsqlEDk9DOdmtuQXQU",
+##"1AjTbZqnelbo44j9by_Zh3R7d3_d1WVfKiZxHL3kT2uI",
+##"1oq2okrYabE1968BI9Ne1Y6aaoXYuxMIakHuod-vQz6k",
+##"1R1F8EtqMZY2AHP-JkXKii6sAv8COgANU1zWiwRefyME")
+
+
+
+## LC14b 
+
+## ALL LC14bs
+
+##table = c("10HGnmM-I-Pgu-LQP6JIxMGWshIjEea3wUsaXKJ309q8",
+##"117IbYX--ovgdp4_QOuadSAAcElgZk-ke10kjbJZZDPQ",
+##"14Zdad0F7RrxT-sm2G2VuHFxwocWKlyUOYT_wql8ARTk",
+##"13rWE-vYCLC8EeEcY_MbpglyFJArVQZMRaIkdxod1bp0",
+##"126DFNZJvnmDoGV8ImD9GnnUepKVf1TK_D4iUyg8FXj0",
+##"10EbHdcLBWyd6iG7nFPUXuA9jd6xrXu-84vbf3fiby5U")
+
+
+
+
+#1 2 table = c("1PrjDAaV6p7_kYH15JccqV3fAx-h8bFe2sB6hbX3KKAY","1MS8bIhUm01igObPvvouMIQi1ddBOORoZmnobNiwPKQg")
+#1 2 5 6 table = c("1PrjDAaV6p7_kYH15JccqV3fAx-h8bFe2sB6hbX3KKAY","1MS8bIhUm01igObPvvouMIQi1ddBOORoZmnobNiwPKQg", "1_8yLdgB7UKyda_5jGyjQedyRLvsqlEDk9DOdmtuQXQU", "1AjTbZqnelbo44j9by_Zh3R7d3_d1WVfKiZxHL3kT2uI")
+#5 6 table = c("1_8yLdgB7UKyda_5jGyjQedyRLvsqlEDk9DOdmtuQXQU", "1AjTbZqnelbo44j9by_Zh3R7d3_d1WVfKiZxHL3kT2uI")
+#3 4 table = c("10HGnmM-I-Pgu-LQP6JIxMGWshIjEea3wUsaXKJ309q8", "117IbYX--ovgdp4_QOuadSAAcElgZk-ke10kjbJZZDPQ")
+#3 4 7 8 table = c("10HGnmM-I-Pgu-LQP6JIxMGWshIjEea3wUsaXKJ309q8", "117IbYX--ovgdp4_QOuadSAAcElgZk-ke10kjbJZZDPQ", "14Zdad0F7RrxT-sm2G2VuHFxwocWKlyUOYT_wql8ARTk", "13rWE-vYCLC8EeEcY_MbpglyFJArVQZMRaIkdxod1bp0")
+#table = c("14Zdad0F7RrxT-sm2G2VuHFxwocWKlyUOYT_wql8ARTk", "13rWE-vYCLC8EeEcY_MbpglyFJArVQZMRaIkdxod1bp0")
+
+#3 table = c("1PrjDAaV6p7_kYH15JccqV3fAx-h8bFe2sB6hbX3KKAY","1MS8bIhUm01igObPvvouMIQi1ddBOORoZmnobNiwPKQg","1R1F8EtqMZY2AHP-JkXKii6sAv8COgANU1zWiwRefyME")
+
+
+dataout <- do.call(rbind, lapply(table, read_sheet,sheet = "output"))
+datain <- do.call(rbind, lapply(table, read_sheet,sheet = "input"))
+dataout$type = "output"
+datain$type = "input"
+
+data <- rbind(dataout,datain)
+```
+
+```{r,echo=F, warning=F,message=F}
+data$partner_type <- replace_na(data$partner_type, "NA")
+dataid <- subset(data, partner_type!="NA")
+
+dataid$partner_type_broad <- dataid$partner_type
+dataid$partner_type_num <- (gsub("-[A-z]*","",dataid$partner_type_broad))
+dataid$partner_type_broad <- removeNumbers(dataid$partner_type_num)
+
+
+
+AA <- data %>% select(type,weight,partner_type)
+ided<- AA %>%group_by(type) %>%
+summarise(
+    unid = length(partner_type[partner_type=="NA"]),
+    unidedsyn = sum(weight[partner_type=="NA"]),
+    ided = length(partner_type[partner_type!="NA"]),
+    idedsyn = sum(weight[partner_type!="NA"]),
+  ) %>%
+  arrange(type)
+ided$toal <- ided$unid+ided$ided
+ided$totalsyn <- ided$unidedsyn + ided$idedsyn
+ided$percentage_identefied <- paste(round((ided$ided/ided$toal)*100,2),"%",sep=" ")
+ided$percentage_identefied_syn <- paste(round((ided$idedsyn/ided$totalsyn)*100,2),"%",sep=" ")
+
+
+AB <- dataid %>% select(type,weight,partner_type_broad)
+broad_summary <- AB %>%
+  group_by(type, partner_type_broad) %>%
+  summarise(
+    Maxsyn = max(weight, na.rm = T),
+    Minsyn = min(weight, na.rm = T),
+    averagesyn = round(mean(weight),1),
+    syn = sum(weight)
+  ) %>%
+  arrange(partner_type_broad)
+temp <- AB %>%  group_by(type) %>%  count(partner_type_broad) %>% arrange(partner_type_broad)
+broad_summary$n <- temp$n
+
+broad_summary$percentage_ided <- case_when(
+  broad_summary$type == "output" ~ paste(round((broad_summary$n/sum(broad_summary$n[broad_summary$type=="output"]))*100,2),"%",sep=" "),
+  broad_summary$type == "input"  ~ paste(round((broad_summary$n/sum(broad_summary$n[broad_summary$type=="input"]))*100,2),"%",sep=" "))
+
+broad_summary$percentage_ided_syn <- case_when(
+  broad_summary$type == "output" ~ paste(round((broad_summary$syn/sum(broad_summary$syn[broad_summary$type=="output"]))*100,2),"%",sep=" "),
+  broad_summary$type == "input"  ~ paste(round((broad_summary$syn/sum(broad_summary$syn[broad_summary$type=="input"]))*100,2),"%",sep=" "))
+
+broad_summary$percentage_toal <- case_when(
+  broad_summary$type == "output" ~ paste(round(((broad_summary$n/ided$toal[ided$type=="output"])*100),2),"%",sep=" "),
+  broad_summary$type == "input"  ~ paste(round(((broad_summary$n/ided$toal[ided$type=="input"])*100),2),"%",sep=" "))
+
+broad_summary$percentage_toal_syn <- case_when(
+  broad_summary$type == "output" ~ paste(round((broad_summary$syn/ided$totalsyn[ided$type=="output"])*100,2),"%",sep=" "),
+  broad_summary$type == "input"  ~ paste(round((broad_summary$syn/ided$totalsyn[ided$type=="input"])*100,2),"%",sep=" "))
+
+
+
+AC <- dataid %>% select(type, weight,partner_type)
+specific_summary <- AC %>%
+  group_by(type, partner_type) %>%
+  summarise(
+    Maxsyn = max(weight, na.rm = T),
+    Minsyn = min(weight, na.rm = T),
+    averagesyn = round(mean(weight),1),
+    syn = sum(weight)
+  ) %>%
+  arrange(partner_type)
+
+temp <- AC %>%  group_by(type) %>%  count(partner_type) %>% arrange(partner_type)
+specific_summary$n <- temp$n
+
+specific_summary$percentage_ided <- case_when(
+  specific_summary$type == "output" ~ paste(round((specific_summary$n/sum(specific_summary$n[specific_summary$type=="output"]))*100,2),"%",sep=" "),
+  specific_summary$type == "input"  ~ paste(round((specific_summary$n/sum(specific_summary$n[specific_summary$type=="input"]))*100,2),"%",sep=" "))
+
+specific_summary$percentage_ided_syn <- case_when(
+  specific_summary$type == "output" ~ paste(round((specific_summary$syn/sum(specific_summary$syn[specific_summary$type=="output"]))*100,2),"%",sep=" "),
+  specific_summary$type == "input"  ~ paste(round((specific_summary$syn/sum(specific_summary$syn[specific_summary$type=="input"]))*100,2),"%",sep=" "))
+
+specific_summary$percentage_toal <- case_when(
+  specific_summary$type == "output" ~ paste(round(((specific_summary$n/ided$toal[ided$type=="output"])*100),2),"%",sep=" "),
+  specific_summary$type == "input"  ~ paste(round(((specific_summary$n/ided$toal[ided$type=="input"])*100),2),"%",sep=" "))
+
+specific_summary$percentage_toal_syn <- case_when(
+  specific_summary$type == "output" ~ paste(round((specific_summary$syn/ided$totalsyn[ided$type=="output"])*100,2),"%",sep=" "),
+  specific_summary$type == "input"  ~ paste(round((specific_summary$syn/ided$totalsyn[ided$type=="input"])*100,2),"%",sep=" "))
+
+
+AD <- dataid %>% select(type, weight,partner_type_num)
+num_summary <- AD %>%
+  group_by(type, partner_type_num) %>%
+  summarise(
+    Maxsyn = max(weight, na.rm = T),
+    Minsyn = min(weight, na.rm = T),
+    averagesyn = round(mean(weight),1),
+    syn = sum(weight)
+  ) %>%
+  arrange(partner_type_num)
+
+temp <- AD %>%  group_by(type) %>%  count(partner_type_num) %>% arrange(partner_type_num)
+num_summary$n <- temp$n
+
+num_summary$percentage_ided <- case_when(
+  num_summary$type == "output" ~ paste(round((num_summary$n/sum(num_summary$n[num_summary$type=="output"]))*100,2),"%",sep=" "),
+  num_summary$type == "input"  ~ paste(round((num_summary$n/sum(num_summary$n[num_summary$type=="input"]))*100,2),"%",sep=" "))
+
+num_summary$percentage_ided_syn <- case_when(
+  num_summary$type == "output" ~ paste(round((num_summary$syn/sum(num_summary$syn[num_summary$type=="output"]))*100,2),"%",sep=" "),
+  num_summary$type == "input"  ~ paste(round((num_summary$syn/sum(num_summary$syn[num_summary$type=="input"]))*100,2),"%",sep=" "))
+
+num_summary$percentage_toal <- case_when(
+  num_summary$type == "output" ~ paste(round(((num_summary$n/ided$toal[ided$type=="output"])*100),2),"%",sep=" "),
+  num_summary$type == "input"  ~ paste(round(((num_summary$n/ided$toal[ided$type=="input"])*100),2),"%",sep=" "))
+
+num_summary$percentage_toal_syn <- case_when(
+  num_summary$type == "output" ~ paste(round((num_summary$syn/ided$totalsyn[ided$type=="output"])*100,2),"%",sep=" "),
+  num_summary$type == "input"  ~ paste(round((num_summary$syn/ided$totalsyn[ided$type=="input"])*100,2),"%",sep=" "))
+
+
+
+
+
+```
+# Cells
+```{r,echo=F}
+unique(dataout$pre_id)
+```
+
+# output 
+
+### how many partners are identified ?
+```{r,echo=F}
+# how many partners are identified ?
+ided %>% filter(type=="output")
+```
+
+### stats about broad partner types
+```{r,echo=F}
+# stats about broad partner types
+
+datatable(broad_summary %>% arrange(desc(n)) %>% filter(type=="output"), filter="top")
+
+##layout(matrix(c(1,2), nrow = 1, ncol = 2, byrow = TRUE))
+
+plot1 <- ggplot(subset(broad_summary,type =="output"), aes(x= reorder(partner_type_broad, -.data[[y]]), y= .data[[y]]))+
+  geom_col(color='darkblue', fill="steelblue")+
+  labs(title = "output", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=6, hjust = 1),axis.title.x = element_blank()) ##angle 25, size 7
+ggplotly(plot1) 
+
+
+
+##layout.show()
+
+```
+
+### stats about broad+number
+```{r,echo=F}
+#stats about broad+number
+
+datatable(num_summary %>% arrange(desc(n)) %>%  filter(type=="output"), filter="top")
+
+ggplot(subset(num_summary,type =="output"), aes(x= reorder(partner_type_num, -.data[[y]]), y= .data[[y]]))+
+  geom_col(color='darkblue', fill="steelblue")+
+  labs(title = "output", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=5.5, hjust = 1),axis.title.x = element_blank()) ##angle 70, size 7
+```
+
+### stats about specific partners (broad + number + suffix )
+```{r,echo=F}
+#stats about specific partners (broad + number + suffix )
+datatable(specific_summary %>% arrange(desc(n)) %>%  filter(type=="output"), filter="top")
+
+plot1 <- ggplot(subset(specific_summary,type =="output"), aes(x= reorder(partner_type, -.data[[y]]), y= .data[[y]]))+
+  geom_col(color='darkblue', fill="steelblue")+
+  labs(title = "output", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=3.5, hjust = 1),axis.title.x = element_blank())  ##size 5
+plot1
+
+## scatter plot
+plot2 <- ggplot(subset(specific_summary,type =="output"), aes(x= reorder(partner_type, -.data[[y]]), y= .data[[y]]))+
+  geom_point(color='darkblue')+
+  labs(title = "output", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=4, hjust = 1),axis.title.x = element_blank())  ##size 5
+plot2
+
+pie <- plot1 + coord_polar() ## coord_polar("y", start=0)
+pie
+
+```
+
+
+
+# input
+
+### how many partners are identified ?
+```{r,echo=F}
+# how many partners are identified ?
+ided %>% filter(type=="input")
+```
+
+### stats about broad partner types
+```{r,echo=F}
+## stats about broad partner types
+
+
+datatable(broad_summary %>% arrange(desc(n)) %>% filter(type=="input"),filter="top")
+
+
+ggplot(subset(broad_summary,type =="input"), aes(x= reorder(partner_type_broad, -.data[[y]]), y= .data[[y]]))+
+  geom_col(color='purple', fill="pink")+
+  labs(title = "input", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=6, hjust = 1),axis.title.x = element_blank()) ##angle 25, size 7
+
+
+
+```
+
+### stats about broad+number
+```{r,echo=F}
+## stats about broad+number
+
+datatable(num_summary %>% arrange(desc(n)) %>%  filter(type=="input"), filter="top")
+
+ggplot(subset(num_summary,type =="input"), aes(x= reorder(partner_type_num, -.data[[y]]), y= .data[[y]]))+
+  geom_col(color='purple', fill="pink")+
+  labs(title = "input", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=5, hjust = 1, vjust = 0.5),axis.title.x = element_blank()) ##size 5
+```
+
+### stats about specific partners (broad + number + suffix )
+
+```{r,echo=F}
+## stats about specific partners (broad + number + suffix )
+
+
+datatable(specific_summary %>% arrange(desc(n)) %>%  filter(type=="input"), filter="top")
+
+plot1 <- ggplot(subset(specific_summary,type =="input"), aes(x= reorder(partner_type, -.data[[y]]), y= .data[[y]]))+
+  geom_col(color='purple', fill="pink")+
+  labs(title = "input", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=3.5, hjust = 1, vjust = 0.5),axis.title.x = element_blank()) ##size 5
+plot1
+
+## scatter plot
+
+plot2 <- ggplot(subset(specific_summary,type =="input"), aes(x= reorder(partner_type, -.data[[y]]), y= .data[[y]]))+
+  geom_point(color='purple')+
+  labs(title = "input", x= "partner type", y = y)+
+  theme(axis.text.x = element_text(angle = 90, size=4, hjust = 1, vjust = 0.5),axis.title.x = element_blank()) ##size 5
+plot2
+
+pie <- plot1 + coord_polar() ## coord_polar("y", start=0)
+pie
+
+```
+
