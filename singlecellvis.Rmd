@@ -1,0 +1,118 @@
+---
+title: "singlecellvis"
+output: html_document
+---
+```{r}
+library(plyr)
+library(natverse)
+library(tidyverse)
+library(fafbseg)
+library(RColorBrewer)
+library(googlesheets4)
+
+```
+
+```{r}
+
+
+
+# !!!! How to use !!!!
+#1. input cell
+#2. set "high" and "low" (synapses)
+#3. set "end" (maximal number of cell to be plotted)
+# setting "end" to a higher number than avialable cells will not produce an error but plot all available cells
+
+# just set "high" and "end" to 10000 to plot everything
+
+##cell = "720575940632472395"  ##old ID "720575940621434506"  previous cell
+cell = "720575940629791275"  ## LC9 cell (LC14a input)
+
+high <- 1000
+low<- 1
+
+end <- 3
+
+
+# if there is no cell that has more than or equal to "low" synapses the programm will produce the follwing error code:
+#Error in ngl_segments(segments, as_character = TRUE, include_hidden = FALSE) :Sorry. There are no valid segments in segments
+
+# !!!! end of settings area!!!
+
+
+
+cell = flywire_latestid(cell)
+names <- read_sheet("1z0qGbSRsQWjw3teznyHn2zQBYX8amum79V1_vva_iSE")
+names2 <- names[,c(5,10)]
+```
+
+```{r}
+post <- flywire_partners(cell, details = TRUE, partners = c("outputs")) %>% filter(cleft_scores >= 100)
+post <- data.frame(post[,c(2,3,4,18,19)])
+post$post_id <- as.character(post$post_id)
+A <- post %>% add_count(post_id)
+post <-A %>% arrange(desc(n)) %>% group_by(post_id)
+post <- post  %>% filter(n >= low, n<= high)
+post <- subset(post,post_id !=pre_id)
+##names2 <- rename(names2,c("post_id"="seg_id"))
+colnames(names2)[colnames(names2) == "seg_id"] <- "post_id"
+post <- join(post,names2,by="post_id",match="first")
+
+
+
+pre <- flywire_partners(cell, details = TRUE, partners = c("inputs")) %>% filter(cleft_scores >= 100)
+pre <- data.frame(pre[,c(2,3,4,18,19)])
+pre$pre_id <- as.character(pre$pre_id)
+A <- pre %>% add_count(pre_id)
+pre <-A %>% arrange(desc(n)) %>% group_by(pre_id)
+pre <- pre  %>% filter(n >= low, n<= high)
+pre <- subset(pre,pre_id !=post_id)
+colnames(names2)[colnames(names2) == "post_id"] <- "pre_id"
+pre <- join(pre,names2,by="pre_id",match="first")
+
+
+```
+
+
+```{r}
+root<-  read_cloudvolume_meshes(cell)
+
+
+
+listpost <- read_cloudvolume_meshes(na.omit(unique(post$post_id)[1:end]))
+i=1
+nopen3d()
+par3d('windowRect' = c(100,100,2000,1100))
+for (i in 1:length(listpost)){
+  shade3d(as.mesh3d(FAFB14NP.surf), alpha=0.05, col='gray', lit=T)
+  plot3d(root, col = "green", lit=F)
+  plot3d(listpost[i],col="magenta",lit=F)
+  spheres3d(post[ which(post$post_id==unique(post$post_id)[i]),2:4],col="yellow",radius = 900,lit=F)
+  view3d(fov=0,zoom=0.5, userMatrix= rotationMatrix(0/180*pi,0,0,1) %*% rotationMatrix(180/180*pi,1,0,0))
+  rgl.snapshot(filename= paste("try2/lc14_post","(", cell,")","_to_",unique(post$post_id)[i],"(",post$type[post$post_id==unique(post$post_id)[i]][1],")" , "front.png", sep=""))
+  view3d(fov=0,zoom=0.5, userMatrix= rotationMatrix(0/180*pi,0,0,1) %*% rotationMatrix(-90/180*pi,1,0,0))
+  rgl.snapshot(filename= paste("try2/lc14_post","(", cell,")","_to_",unique(post$post_id)[i],"(",post$type[post$post_id==unique(post$post_id)[i]][1],")" ,"top.png", sep=""))
+  clear3d()
+}
+
+
+
+listpre <- read_cloudvolume_meshes(na.omit(unique(pre$pre_id)[1:end]))
+i=1
+nopen3d()
+par3d('windowRect' = c(100,100,2000,1100))
+for (i in 1:length(listpre)){
+  shade3d(as.mesh3d(FAFB14NP.surf), alpha=0.05, col='gray', lit=T)
+  plot3d(root, col = "green", lit=F)
+  plot3d(listpre[i],col="magenta",lit=F)
+  spheres3d(post[which(pre$pre_id==unique(pre$pre_id)[i]),2:4],col="yellow",radius = 900,lit=F)
+  view3d(fov=0,zoom=0.5, userMatrix= rotationMatrix(0/180*pi,0,0,1) %*% rotationMatrix(180/180*pi,1,0,0))
+  rgl.snapshot(filename= paste("try2/lc14_pre","(", cell,")","_to_",unique(pre$pre_id)[i],"(",pre$type[pre$pre_id==unique(pre$pre_id)[i]][1],")", "front.png", sep=""))
+  view3d(fov=0,zoom=0.5, userMatrix= rotationMatrix(0/180*pi,0,0,1) %*% rotationMatrix(-90/180*pi,1,0,0))
+  rgl.snapshot(filename= paste("try2/lc14_pre","(", cell,")","_to_",unique(pre$pre_id)[i],"(",pre$type[pre$pre_id==unique(pre$pre_id)[i]][1],")", "top.png", sep=""))
+  clear3d()
+}
+```
+
+
+
+
